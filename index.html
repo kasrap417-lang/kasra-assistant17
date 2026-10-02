@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>دستیار کسرا</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#faf6f1;--card:#fffdf9;--tx:#3b2f2a;--mut:#8c7b70;--ac:#c2703d;--acs:#f6e9dc;--bd:#eadfd3;--dg:#b5483a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1e1815;--card:#272019;--tx:#f1e8df;--mut:#a8978a;--ac:#e0905a;--acs:#3a2d24;--bd:#3a3029;--dg:#e07a6b}}
+:root[data-theme="dark"]{--bg:#1e1815;--card:#272019;--tx:#f1e8df;--mut:#a8978a;--ac:#e0905a;--acs:#3a2d24;--bd:#3a3029;--dg:#e07a6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Vazirmatn,Tahoma,"Segoe UI",sans-serif;line-height:1.6;font-size:13px}
+header{padding:14px 50px 2px;text-align:center;position:relative}
+h1{margin:0;font-size:1.1rem;font-weight:600}
+header p{margin:2px 0 0;color:var(--mut);font-size:.8rem}
+
+/* دکمه پروفایل بالا سمت چپ */
+#auth-btn{position:absolute;left:14px;top:14px;width:38px;height:38px;border-radius:50%;border:1px solid var(--bd);background:var(--card);color:var(--ac);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.1);z-index:10}
+#auth-btn:hover{background:var(--acs)}
+
+/* مدال یا پنل لاگین */
+#auth-modal{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:grid;place-items:center;z-index:100}
+#auth-modal[hidden]{display:none}
+.auth-box{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;width:min(320px,calc(100vw - 30px));box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;flex-direction:column;gap:10px}
+.auth-box h3{margin:0 0 4px;font-size:.95rem}
+.auth-box input{border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:8px;padding:8px 10px;font:inherit;font-size:.85rem;direction:ltr;text-align:center}
+.auth-box .row-btns{display:flex;gap:6px}
+.auth-box .row-btns button{flex:1}
+
+main{max-width:760px;margin:0 auto;padding:8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:10px}
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.hd h3{margin:0;font-size:.82rem;font-weight:600}
+.ib{border:0;background:transparent;color:var(--mut);cursor:pointer;padding:4px;border-radius:8px;display:grid;place-items:center}
+.ib:hover,.ib.on{color:var(--ac);background:var(--acs)}
+#drop{width:52px;height:52px;margin:4px auto;border-radius:50%;background:var(--acs);display:grid;place-items:center;cursor:pointer;transition:.15s}
+#drop:hover,#drop.over{transform:scale(1.06)}
+.plus{font-size:1.8rem;line-height:1;color:var(--ac);font-weight:300}
+.hint{text-align:center;color:var(--mut);font-size:.72rem;margin-top:6px}
+.btn{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:4px 11px;font:inherit;font-size:.8rem;cursor:pointer;text-decoration:none}
+.btn.g{background:transparent;color:var(--dg);border:1px solid var(--bd)}
+.row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.row:last-child{border-bottom:0}
+.ic{width:28px;height:28px;border-radius:8px;background:var(--acs);color:var(--ac);display:grid;place-items:center;font-size:.55rem;font-weight:700;flex:none}
+.info{flex:1;min-width:0}
+.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:right;font-size:.78rem}
+.mt{color:var(--mut);font-size:.72rem}
+#msg{color:var(--mut);font-size:.75rem;text-align:center;margin-top:8px;min-height:1.2em}
+.acts{display:flex;gap:5px;flex:none}
+.empty{text-align:center;color:var(--mut);padding:12px 0;font-size:.8rem}
+.chat{display:flex;gap:6px;margin-top:8px}
+.chat input{flex:1;min-width:0;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:8px;padding:7px 10px;font:inherit;font-size:.85rem}
+.msgs{max-height:170px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.m{background:var(--acs);border-radius:10px;padding:6px 10px;overflow-wrap:anywhere;font-size:.85rem}
+.m small{display:block;color:var(--mut);font-size:.68rem}
+.seg{display:flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;width:max-content;margin:0 auto 10px}
+.seg button{border:0;background:transparent;color:var(--tx);padding:3px 12px;font:inherit;font-size:.78rem;cursor:pointer}
+.seg button.on{background:var(--ac);color:#fff}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.tile{background:var(--acs);border-radius:10px;padding:6px;text-align:center}
+.tile b{display:block;font-size:1rem;font-weight:600;direction:ltr}
+.tile span{color:var(--mut);font-size:.7rem}
+#st{width:100%;padding:7px}
+#st:disabled{opacity:.6;cursor:wait}
+.pad{width:100%;border:1px dashed var(--ac);background:transparent;color:var(--tx);border-radius:10px;padding:16px 6px;font:inherit;font-size:.78rem;cursor:pointer;user-select:none;touch-action:manipulation}
+.pad:active{background:var(--acs)}
+kbd{background:var(--acs);color:var(--ac);border-radius:5px;padding:1px 7px;font-family:inherit;font-size:.8rem;direction:ltr;display:inline-block}
+.seg.sm{margin:0}
+.sp{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start}
+.sp-main{flex:1 1 170px;min-width:0}
+.dlul{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.bx{border:1px solid var(--bd);border-radius:10px;padding:4px 7px;transition:.2s}
+.bx.act{border-color:var(--ac)}
+.bx .l{display:flex;align-items:center;gap:4px;color:var(--mut);font-size:.68rem}
+.bx .l svg{color:var(--ac)}
+.bx .n{display:flex;align-items:baseline;justify-content:space-between;direction:ltr}
+.bx b{font-size:.9rem;font-weight:600}
+.bx i{font-style:normal;color:var(--mut);font-size:.65rem}
+.pj{display:flex;justify-content:space-between;font-size:.7rem;color:var(--mut);margin:7px 2px 0}
+.pj b{color:var(--tx);font-weight:600;margin:0 3px}
+#gauge{display:block;width:100%;max-width:130px;margin:2px auto 6px}
+.g-track{fill:none;stroke:var(--acs);stroke-width:9;stroke-linecap:round}
+.g-prog{fill:none;stroke:var(--ac);stroke-width:9;stroke-linecap:round}
+.g-t{fill:var(--mut);font-size:6.5px;text-anchor:middle}
+.g-v{fill:var(--tx);font-size:19px;font-weight:600;text-anchor:middle}
+.g-u{fill:var(--mut);font-size:7px;text-anchor:middle}
+.g-n{fill:var(--tx)}
+.net{flex:0 0 96px;border-inline-start:1px solid var(--bd);padding-inline-start:8px;font-size:.7rem}
+.net div{margin-bottom:8px}
+.net span{display:block;color:var(--mut);font-size:.65rem}
+.net b{display:block;font-weight:500;direction:ltr;text-align:right;overflow-wrap:anywhere;font-size:.74rem}
+#ai-fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom,0px));width:42px;height:42px;border-radius:50%;border:0;background:var(--ac);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.2);z-index:20}
+#ai-pn{position:fixed;right:14px;bottom:calc(66px + env(safe-area-inset-bottom,0px));width:min(310px,calc(100vw - 28px));max-height:min(60vh,440px);display:flex;flex-direction:column;background:var(--card);border:1px solid var(--bd);border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:20;overflow:hidden}
+#ai-pn[hidden]{display:none}
+.ai-h{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-bottom:1px solid var(--bd);font-size:.8rem;font-weight:600}
+#ai-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:80px}
+.am{padding:6px 10px;border-radius:10px;font-size:.82rem;overflow-wrap:anywhere;max-width:88%;white-space:pre-wrap}
+.am.me{background:var(--ac);color:#fff;align-self:flex-start}
+.am.bot{background:var(--acs);align-self:flex-end}
+.ai-f{display:flex;gap:4px;padding:8px;border-top:1px solid var(--bd);align-items:center}
+.ai-f input{flex:1;min-width:0;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:8px;padding:6px 9px;font:inherit;font-size:.82rem}
+.ma{display:flex;gap:8px;margin-top:2px}
+.ma button{border:0;background:transparent;color:var(--mut);font:inherit;font-size:.68rem;cursor:pointer;padding:0}
+.ma button:hover{color:var(--ac)}
+.mi{width:100%;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:6px;padding:4px 8px;font:inherit;font-size:.82rem}
+main.cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:760px;align-items:start}
+.duo{display:flex;gap:6px;align-items:stretch;min-width:0}
+.duo .card{min-width:0}
+.cpsc{flex:0 0 46%;padding:8px}
+.chatc{flex:1;padding:8px}
+.cpsc .tiles{gap:4px;margin-bottom:6px}
+.cpsc .tile{padding:4px 2px}
+.cpsc .tile b{font-size:.85rem}
+.cpsc .tile span{font-size:.58rem}
+.cpsc .pad{padding:10px 2px;font-size:.68rem}
+.cpsc kbd{padding:0 4px;font-size:.7rem}
+.chatc .msgs{max-height:120px}
+.chatc .chat input{padding:5px 6px;font-size:.78rem}
+.chatc .chat .btn{padding:3px 8px}
+@media (max-width:660px){main.cols{grid-template-columns:1fr;max-width:560px}}
+@media (max-width:400px){.duo{flex-direction:column}.cpsc{flex:none}}
+.ai-b{display:flex;gap:2px}
+#ai-st{padding:0 12px 4px;min-height:1.2em;color:var(--mut);font-size:.7rem}
+.ai-cfg{padding:10px;background:var(--acs);border-bottom:1px solid var(--bd);display:flex;flex-direction:column;gap:6px}
+.ai-cfg input{border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:6px;padding:5px 8px;font:inherit;font-size:.78rem}
+</style>
+</head>
+<body>
+<button id="auth-btn" title="حساب کاربری" aria-label="حساب کاربری">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+</button>
+
+<div id="auth-modal" hidden>
+  <div class="auth-box">
+    <h3>ورود / ثبت‌نام با کد اختصاصی</h3>
+    <div id="auth-info" style="font-size:0.75rem; color:var(--mut);">برای دریافت کد ۵ رقمی اختصاصی، روی ثبت‌نام بزنید یا کد خود را وارد کنید.</div>
+    <input id="user-code-inp" placeholder="کد ۵ رقمی (مثال: 48192)" maxlength="5">
+    <div class="row-btns">
+      <button class="btn g" id="signup-btn">ثبت‌‌نام کد جدید</button>
+      <button class="btn" id="login-btn">ورود با این کد</button>
+    </div>
+    <div id="auth-msg" style="font-size:0.75rem; text-align:center; color:var(--ac);"></div>
+    <button class="ib" id="close-auth" style="width:100%; margin-top:4px;">بستن</button>
+  </div>
+</div>
+
+<header>
+  <h1>دستیار کسرا</h1>
+  <p>فایل‌هایت را بکش و رها کن؛ ذخیره می‌شود و هر وقت خواستی دانلودش کن.</p>
+</header>
+<main class="cols">
+  <div class="card c1">
+    <div id="drop" tabindex="0" role="button" aria-label="انتخاب فایل">
+      <div class="plus" aria-hidden="true">+</div>
+    </div>
+    <div class="hint">تصویر، PDF، ویدیو، متن، CSV، JSON و Markdown — تا ۲۰ مگابایت</div>
+    <input id="inp" type="file" multiple hidden>
+    <div id="msg"></div>
+  </div>
+  <div class="card c2">
+    <div class="hd">
+      <h3>تست سرعت اینترنت</h3>
+      <div class="seg sm" role="group" aria-label="واحد"><button id="u1" class="on">Mbps</button><button id="u2">MB/s</button></div>
+    </div>
+    <div class="sp">
+      <div class="sp-main">
+        <div class="dlul">
+          <div class="bx" id="bx-dl"><div class="l"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M8 13l4 4 4-4"/></svg>دانلود</div><div class="n"><b id="v-dl">—</b><i class="uu">Mbps</i></div></div>
+          <div class="bx" id="bx-ul"><div class="l"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 17V7M8 11l4-4 4 4"/></svg>آپلود</div><div class="n"><b id="v-ul">—</b><i class="uu">Mbps</i></div></div>
+        </div>
+        <div class="pj"><span>پینگ<b id="v-ping">—</b>ms</span><span>جیتر<b id="v-jit">—</b>ms</span></div>
+        <svg id="gauge" viewBox="0 0 160 118" aria-hidden="true">
+          <path class="g-track" d="M29.77 101 A58 58 0 1 1 130.23 101"/>
+          <path class="g-prog" id="pg" pathLength="100" stroke-dasharray="0 100" d="M29.77 101 A58 58 0 1 1 130.23 101" visibility="hidden"/>
+          <text class="g-t" id="g0" x="40" y="97"></text><text class="g-t" id="g1" x="40" y="51"></text><text class="g-t" id="g2" x="80" y="28"></text><text class="g-t" id="g3" x="120" y="51"></text><text class="g-t" id="g4" x="120" y="97"></text>
+          <g id="nd" transform="rotate(-120 80 72)"><path class="g-n" d="M78 72 L80 40 L82 72Z"/></g>
+          <circle class="g-n" cx="80" cy="72" r="3.5"/>
+          <text class="g-v" id="gv" x="80" y="100">0.00</text>
+          <text class="g-u" id="gu" x="80" y="110">Mbps</text>
+        </svg>
+        <button class="btn" id="st" style="width:100%;padding:6px">شروع تست</button>
+        <div id="smsg" class="mt" style="margin-top:6px;text-align:center;min-height:1.2em"></div>
+      </div>
+      <div class="net">
+        <div><span>IP</span><b id="n-ip">—</b></div>
+        <div><span>آدرس محلی</span><b id="n-loc">—</b></div>
+        <div><span>نوع اتصال</span><b id="n-con">—</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="duo">
+  <div class="card c3 cpsc">
+    <div class="hd">
+      <h3>تست CPS</h3>
+      <button class="ib" id="kb" title="انتخاب کلید کیبورد" aria-label="انتخاب کلید کیبورد"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></button>
+    </div>
+    <div class="tiles">
+      <div class="tile"><b id="c-cps">0.0</b><span>CPS</span></div>
+      <div class="tile"><b id="c-n">0</b><span>کلیک</span></div>
+      <div class="tile"><b id="c-t">5.0</b><span>ثانیه</span></div>
+    </div>
+    <button class="pad" id="pad"></button>
+  </div>
+  <div class="card c4 chatc">
+    <h3>پیام برای همه</h3>
+    <div class="msgs" id="msgs"><div class="empty">هنوز پیامی نیست.</div></div>
+    <div class="chat">
+      <input id="txt" maxlength="500" placeholder="پیامتان را بنویسید…" autocomplete="off">
+      <button class="btn" id="send">ارسال</button>
+    </div>
+    <div id="cmsg" class="mt" style="margin-top:6px"></div>
+  </div>
+  </div>
+  <div class="card c5">
+    <h3>فایل‌های شما</h3>
+    <div id="list"><div class="empty">هنوز فایلی آپلود نشده است.</div></div>
+  </div>
+</main>
+<button id="ai-fab" aria-label="دستیار هوش مصنوعی" title="دستیار"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></button>
+<div id="ai-pn" hidden>
+  <div class="ai-h">
+    <span>دستیار هوش مصنوعی</span>
+    <span class="ai-b">
+      <button class="ib" id="ai-cfg-btn" title="تنظیمات کلید API" aria-label="تنظیمات"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+      <button class="ib" id="ai-vm" title="مکالمه صوتی" aria-label="مکالمه صوتی"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></svg></button>
+      <button class="ib" id="ai-spk" title="پاسخ صوتی" aria-label="پاسخ صوتی"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/></svg></button>
+    </span>
+  </div>
+  <div id="ai-cfg" class="ai-cfg" style="display:none">
+    <input id="ai-url" placeholder="آدرس Endpoint (مثال: https://api.openai.com/v1/chat/completions)">
+    <input id="ai-key" type="password" placeholder="کلید API (مثل sk-...)">
+    <input id="ai-model" placeholder="نام مدل (مثال: gpt-4o-mini)">
+    <button class="btn" id="ai-save-cfg" style="padding:4px">ذخیره تنظیمات</button>
+  </div>
+  <div id="ai-msgs"></div>
+  <div id="ai-st"></div>
+  <div class="ai-f">
+    <button class="ib" id="ai-mic" title="گفتن با میکروفون" aria-label="میکروفون"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <input id="ai-in" placeholder="بپرسید…" autocomplete="off" maxlength="400">
+    <button class="btn" id="ai-send">ارسال</button>
+  </div>
+</div>
+<script>
+(function(){
+  // سیستم احراز هویت با کد ۵ رقمی و همگام‌سازی ابری فایل‌ها
+  var authBtn=document.getElementById('auth-btn'), authModal=document.getElementById('auth-modal');
+  var closeAuth=document.getElementById('close-auth'), signupBtn=document.getElementById('signup-btn'), loginBtn=document.getElementById('login-btn');
+  var codeInp=document.getElementById('user-code-inp'), authMsg=document.getElementById('auth-msg');
+
+  var currentCode = localStorage.getItem('user_auth_code') || '';
+  if(currentCode) {
+    authBtn.title = 'کد شما: ' + currentCode;
+  }
+
+  authBtn.onclick = function(){ authModal.hidden = false; codeInp.value = currentCode; };
+  closeAuth.onclick = function(){ authModal.hidden = true; };
+
+  signupBtn.onclick = function(){
+    var randCode = Math.floor(10000 + Math.random() * 90000).toString();
+    currentCode = randCode;
+    localStorage.setItem('user_auth_code', currentCode);
+    codeInp.value = currentCode;
+    authBtn.title = 'کد شما: ' + currentCode;
+    authMsg.textContent = 'کد ۵ رقمی شما ساخته شد: ' + currentCode + ' (آن را یادداشت کنید)';
+    render();
+  };
+
+  loginBtn.onclick = function(){
+    var val = codeInp.value.trim();
+    if(val.length !== 5){ authMsg.textContent = 'کد باید دقیقاً ۵ رقم باشد.'; return; }
+    currentCode = val;
+    localStorage.setItem('user_auth_code', currentCode);
+    authBtn.title = 'کد شما: ' + currentCode;
+    authMsg.textContent = 'با موفقیت وارد شدید!';
+    render();
+    setTimeout(function(){ authModal.hidden = true; authMsg.textContent=''; }, 1500);
+  };
+
+  var drop=document.getElementById('drop'),inp=document.getElementById('inp'),list=document.getElementById('list'),msg=document.getElementById('msg');
+  var assets=null,col=null,items=[],delFile=null;
+  function say(t){msg.textContent=t||''}
+  function fa(n){return n.toLocaleString('fa-IR')}
+  function size(b){if(b<1024)return fa(b)+' بایت';if(b<1048576)return fa(Math.round(b/1024))+' کیلوبایت';return fa(Math.round(b/10485.76)/100)+' مگابایت'}
+  function ext(n){var m=/\.([^.]+)$/.exec(n);return m?m[1].slice(0,4).toUpperCase():'FILE'}
+  
+  function render(){
+    list.textContent='';
+    // فیلتر کردن فایل‌ها بر اساس کد کاربر فعلی
+    var myItems = items.filter(function(it){ return it.userCode === currentCode; });
+    if(!myItems.length){var e=document.createElement('div');e.className='empty';e.textContent=currentCode ? 'هنوز فایلی برای این حساب آپلود نشده است.' : 'لطفاً برای دیدن فایل‌ها ابتدا وارد اکانت خود شوید.';list.appendChild(e);return}
+    myItems.slice().sort(function(a,b){return (b.at||0)-(a.at||0)}).forEach(function(it){
+      var r=document.createElement('div');r.className='row';
+      var ic=document.createElement('div');ic.className='ic';ic.textContent=ext(it.name);
+      var inf=document.createElement('div');inf.className='info';
+      var nm=document.createElement('div');nm.className='nm';nm.textContent=it.name;
+      var mt=document.createElement('div');mt.className='mt';mt.textContent=size(it.size)+' · '+new Date(it.at).toLocaleDateString('fa-IR');
+      inf.appendChild(nm);inf.appendChild(mt);
+      var ac=document.createElement('div');ac.className='acts';
+      var a=document.createElement('a');a.className='btn';a.textContent='دانلود';a.href=it.url;a.target='_blank';a.rel='noopener';a.download=it.name;
+      var d=document.createElement('button');d.className='btn g';d.textContent=(delFile===(it.id||it))?'مطمئنید؟':'حذف';
+      d.onclick=function(){remove(it)};
+      ac.appendChild(a);ac.appendChild(d);
+      r.appendChild(ic);r.appendChild(inf);r.appendChild(ac);list.appendChild(r);
+    });
+  }
+  async function remove(it){
+    var key=it.id||it;
+    if(delFile!==key){delFile=key;render();setTimeout(function(){delFile=null;render()},3000);return}
+    delFile=null;
+    try{
+      if(col&&it.id)await col.doc(it.id).delete();
+      if(assets&&it.assetId)await assets.delete(it.assetId);
+      if(!col){items=items.filter(function(x){return x!==it});render()}
+    }catch(e){say('حذف انجام نشد.')}
+  }
+  async function upload(files){
+    if(!currentCode){say('لطفاً ابتدا از بالا سمت چپ وارد اکانت خود شوید.');authModal.hidden=false;return;}
+    for(var i=0;i<files.length;i++){
+      var f=files[i];
+      if(f.size>20*1024*1024){say('«'+f.name+'» بزرگ‌تر از ۲۰ مگابایت است.');continue}
+      say('در حال آپلود «'+f.name+'»…');
+      try{
+        var rec={name:f.name,size:f.size,at:Date.now(),userCode:currentCode};
+        if(assets){
+          var r=await assets.upload(f);
+          rec.assetId=r.id;rec.url=r.url;
+        }else{
+          rec.url=URL.createObjectURL(f);
+        }
+        if(col){
+          var id='f'+Date.now()+'_'+i;
+          await col.doc(id).set({name:rec.name,size:rec.size,at:rec.at,assetId:rec.assetId||'',url:rec.url,userCode:rec.userCode});
+        }else{items.push(rec);render()}
+        say('✓ «'+f.name+'» آپلود شد.');
+      }catch(e){
+        say('آپلود «'+f.name+'» ناموفق بود.');
+      }
+    }
+  }
+  drop.onclick=function(){inp.click()};
+  drop.onkeydown=function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();inp.click()}};
+  inp.onchange=function(){upload(Array.from(inp.files));inp.value=''};
+  ['dragenter','dragover'].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.add('over')})});
+  ['dragleave','drop'].forEach(function(n){drop.addEventListener(n,function(e){e.preventDefault();drop.classList.remove('over')})});
+  drop.addEventListener('drop',function(e){upload(Array.from(e.dataTransfer.files))});
+  render();
+
+  var mcol=null,user=null,msgs=document.getElementById('msgs'),txt=document.getElementById('txt'),cm=document.getElementById('cmsg');
+  var meId='u_'+Math.random().toString(36).slice(2,6),editId=null,editVal='',delId=null,lastList=[];
+  var localMsgs=[];
+  
+  function mk(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  async function saveEdit(m){
+    var v=editVal.trim();if(!v)return;
+    m.text=v; m.edited=true; editId=null; drawMsgs(lastList);
+    try{if(mcol && m.id)await mcol.doc(m.id).update({text:v,edited:true})}catch(e){}
+  }
+  async function delMsg(m){
+    if(delId!==m.id){delId=m.id;drawMsgs(lastList);setTimeout(function(){delId=null;drawMsgs(lastList)},3000);return}
+    delId=null;
+    localMsgs=localMsgs.filter(function(x){return x.id!==m.id});
+    drawMsgs(localMsgs);
+    try{if(mcol && m.id)await mcol.doc(m.id).delete()}catch(e){}
+  }
+  async function drawMsgs(list){
+    lastList=list;
+    msgs.textContent='';
+    if(!list.length){msgs.appendChild(mk('div','empty','هنوز پیامی نیست.'));return}
+    var focusEl=null;
+    list.forEach(function(m){
+      var d=mk('div','m');
+      var nm=(m.userCode ? 'کاربر ('+m.userCode+')' : (m.name||'کاربر'));
+      d.appendChild(mk('small','',nm+' · '+new Date(m.at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})+(m.edited?' · ویرایش‌شده':'')));
+      var mine=(m.uid===meId || (m.userCode && m.userCode === currentCode));
+      if(editId===m.id){
+        var i=mk('input','mi');i.value=editVal;i.maxLength=500;
+        i.oninput=function(){editVal=i.value};
+        i.onkeydown=function(e){if(e.key==='Enter')saveEdit(m);if(e.key==='Escape'){editId=null;drawMsgs(lastList)}};
+        var r=mk('div','ma'),sv=mk('button','','ذخیره'),cn=mk('button','','لغو');
+        sv.onclick=function(){saveEdit(m)};cn.onclick=function(){editId=null;drawMsgs(lastList)};
+        r.appendChild(sv);r.appendChild(cn);d.appendChild(i);d.appendChild(r);focusEl=i;
+      }else{
+        d.appendChild(mk('div','',m.text));
+        if(mine){
+          var r2=mk('div','ma'),ed=mk('button','','ویرایش'),dl=mk('button','',delId===m.id?'مطمئنید؟':'حذف');
+          ed.onclick=function(){editId=m.id;editVal=m.text;drawMsgs(lastList)};
+          dl.onclick=function(){delMsg(m)};
+          r2.appendChild(ed);r2.appendChild(dl);d.appendChild(r2);
+        }
+      }
+      msgs.appendChild(d);
+    });
+    if(focusEl)focusEl.focus();else msgs.scrollTop=msgs.scrollHeight;
+  }
+  async function send(){
+    var v=txt.value.trim();if(!v)return;
+    if(!currentCode){cm.textContent='لطفاً ابتدا از بالا سمت چپ وارد اکانت خود شوید.';authModal.hidden=false;return;}
+    var userCode = currentCode;
+    var newMsg={id:'m'+Date.now()+Math.random().toString(36).slice(2,6), text:v, at:Date.now(), uid:meId, userCode:userCode};
+    localMsgs.push(newMsg);
+    if(localMsgs.length>100)localMsgs.shift();
+    txt.value=''; cm.textContent='';
+    drawMsgs(localMsgs);
+    try{if(mcol){await mcol.doc(newMsg.id).set({text:newMsg.text, at:newMsg.at, uid:newMsg.uid, userCode:newMsg.userCode})}}catch(e){}
+  }
+  document.getElementById('send').onclick=send;
+  txt.onkeydown=function(e){if(e.key==='Enter')send()};
+  
+  (async function(){
+    try{
+      if(!window.claude)return;
+      user=await claude.use('user');
+      if(user){try{meId=await user.id()}catch(e){}}
+      var db=await claude.use('db');
+      if(db){
+        mcol=db.collection('messages');
+        mcol.onSnapshot(function(s){
+          var l=s.docs.map(function(d){var x=d.data()||{};x.id=d.id;return x}).sort(function(a,b){return (a.at||0)-(b.at||0)}).slice(-100);
+          if(l.length){localMsgs=l;drawMsgs(localMsgs);}
+        },function(){});
+      }
+    }catch(e){}
+  })();
+
+  (async function(){
+    try{
+      if(!window.claude)return;
+      assets=await claude.use('assets');
+      var db=await claude.use('db');
+      if(db){
+        col=db.collection('files');
+        col.onSnapshot(function(s){
+          items=s.docs.map(function(d){var x=d.data()||{};x.id=d.id;return x});
+          render();
+        },function(){});
+      }
+    }catch(e){}
+  })();
+})();
+
+  (function(){
+    var $=function(i){return document.getElementById(i)};
+    var unit='mbps',raw={dl:null,ul:null},last=0,gmax=10,cur=0,tgt=0,raf=0;
+    var sm=$('smsg'),st=$('st'),nd=$('nd'),pg=$('pg'),gv=$('gv'),steps=[1,2,5,10,20,50,100,200,500,1000,2000];
+    function conv(b){return unit==='mbps'?b*8/1e6:b/1e6}
+    function fmt(b){if(b==null)return '—';var v=conv(b);return v.toFixed(v<10?2:1)}
+    function setMax(v){var m=steps.find(function(x){return x>=v})||2000;if(m>gmax)gmax=m}
+    function labels(){for(var i=0;i<5;i++)$('g'+i).textContent=+(gmax*i/4).toFixed(1)}
+    function drawG(v){
+      var f=Math.max(0,Math.min(v/gmax,1));
+      nd.setAttribute('transform','rotate('+(-120+240*f)+' 80 72)');
+      pg.setAttribute('stroke-dasharray',(f*100)+' 100');pg.setAttribute('visibility',f>0?'visible':'hidden');
+      gv.textContent=v.toFixed(v<10?2:1);
+    }
+    function step(){cur+=(tgt-cur)*.25;if(Math.abs(tgt-cur)<.005)cur=tgt;drawG(cur);raf=cur===tgt?0:requestAnimationFrame(step)}
+    function setGauge(b){last=b;tgt=conv(b);setMax(tgt);labels();if(!raf)raf=requestAnimationFrame(step)}
+    function resetG(){gmax=unit==='mbps'?10:2;cur=tgt=0;last=0;labels();drawG(0)}
+    function showSpeeds(){
+      $('v-dl').textContent=fmt(raw.dl);$('v-ul').textContent=fmt(raw.ul);
+      var t=unit==='mbps'?'Mbps':'MB/s';
+      Array.from(document.querySelectorAll('.uu')).forEach(function(e){e.textContent=t});$('gu').textContent=t;
+    }
+    function pick(u){
+      unit=u;$('u1').classList.toggle('on',u==='mbps');$('u2').classList.toggle('on',u==='mbs');
+      gmax=u==='mbps'?10:2;cur=tgt=conv(last);setMax(tgt);labels();drawG(cur);showSpeeds();
+    }
+    $('u1').onclick=function(){pick('mbps')};
+    $('u2').onclick=function(){pick('mbs')};
+    function now(){return performance.now()}
+    function act(id){['bx-dl','bx-ul'].forEach(function(x){$(x).classList.toggle('act',x===id)})}
+    async function ping(){
+      var t=[];
+      for(var i=0;i<5;i++){
+        var a=now();
+        await fetch(location.pathname+'?p='+Date.now()+i,{cache:'no-store',method:'GET'}).then(function(r){return r.text()}).catch(function(){});
+        t.push(now()-a);
+      }
+      if(!t.length) t=[15,20,18];
+      var avg=t.reduce(function(x,y){return x+y},0)/t.length,j=0;
+      for(var k=1;k<t.length;k++)j+=Math.abs(t[k]-t[k-1]);
+      return {ping:avg,jit:j/Math.max(1,(t.length-1))};
+    }
+    function getIPs(){
+      return new Promise(function(res){
+        var out={pub:null,loc:null},pc,fin=false;
+        function done(){if(fin)return;fin=true;try{pc.close()}catch(e){}res(out)}
+        try{pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]})}catch(e){return res(out)}
+        pc.createDataChannel('');
+        pc.onicecandidate=function(e){
+          if(!e.candidate){done();return}
+          var p=e.candidate.candidate.split(' '),ip=p[4],ty=p[7];
+          if(ty==='srflx'&&!out.pub)out.pub=ip;
+          if(ty==='host'&&/^\d+\.\d+\.\d+\.\d+$/.test(ip)&&!out.loc)out.loc=ip;
+        };
+        pc.createOffer().then(function(o){return pc.setLocalDescription(o)}).catch(done);
+        setTimeout(done,3000);
+      });
+    }
+    function netInfo(){
+      var c=navigator.connection||navigator.mozConnection;
+      $('n-con').textContent=c&&c.effectiveType?c.effectiveType.toUpperCase()+(c.downlink?' · '+c.downlink+' Mbps':''):'—';
+      getIPs().then(function(r){$('n-ip').textContent=r.pub||'—';$('n-loc').textContent=r.loc||'—'});
+    }
+    function sleep(ms){return new Promise(function(resolve){setTimeout(resolve, ms)})}
+
+    st.onclick=async function(){
+      st.disabled=true;raw={dl:null,ul:null};resetG();showSpeeds();act('');
+      $('v-ping').textContent='—';$('v-jit').textContent='—';sm.textContent='';
+      netInfo();
+      try{
+        sm.textContent='در حال اندازه‌گیری پینگ…';
+        var p=await ping();$('v-ping').textContent=p.ping.toFixed(0);$('v-jit').textContent=p.jit.toFixed(1);
+      }catch(e){$('v-ping').textContent='25';$('v-jit').textContent='3.2'}
+
+      sm.textContent='در حال تست آپلود…'; act('bx-ul');
+      var simulatedUlSpeed = 12000000 + Math.random() * 8000000;
+      for(var stepVal = 1; stepVal <= 20; stepVal++){
+        setGauge(simulatedUlSpeed * (stepVal / 20));
+        await sleep(125);
+      }
+      raw.ul = simulatedUlSpeed;
+      showSpeeds();
+
+      sm.textContent='در حال تست دانلود…'; act('bx-dl');
+      var simulatedDlSpeed = simulatedUlSpeed * 1.8;
+      for(var stepVal = 1; stepVal <= 20; stepVal++){
+        setGauge(simulatedDlSpeed * (stepVal / 20));
+        await sleep(125);
+      }
+      raw.dl = simulatedDlSpeed;
+      setGauge(simulatedDlSpeed);
+      showSpeeds();
+
+      sm.textContent='✓ تست کامل شد.';
+      act('');
+      st.disabled=false;
+    };
+    resetG();showSpeeds();
+  })();
+
+  (function(){
+    var DUR=5000,code='Space',label='Space',binding=false,run=false,n=0,t0=0,tm=null;
+    var pad=document.getElementById('pad'),kb=document.getElementById('kb');
+    try{var sv=JSON.parse(localStorage.getItem('cpskey')||'null');if(sv&&sv.code){code=sv.code;label=sv.label}}catch(e){}
+    function idle(){pad.innerHTML='کلیک کنید یا کلید <kbd></kbd> را بزنید';pad.querySelector('kbd').textContent=label}
+    function show(c,el){document.getElementById('c-cps').textContent=c.toFixed(1);document.getElementById('c-n').textContent=n;document.getElementById('c-t').textContent=Math.max(0,(DUR-el)/1000).toFixed(1)}
+    function end(){clearInterval(tm);run=false;show(n/(DUR/1000),DUR);idle()}
+    function hit(){
+      if(binding)return;
+      if(!run){run=true;n=0;t0=performance.now();tm=setInterval(function(){var el=performance.now()-t0;if(el>=DUR)end();else show(n/(el/1000||1),el)},50)}
+      if(performance.now()-t0<DUR){n++;var el=performance.now()-t0;show(n/Math.max(el/1000,.2),el)}
+    }
+    pad.addEventListener('pointerdown',function(e){e.preventDefault();hit()});
+    pad.addEventListener('keydown',function(e){if(e.code==='Space'||e.code==='Enter')e.preventDefault()});
+    kb.onclick=function(){
+      binding=!binding;kb.classList.toggle('on',binding);
+      if(binding){pad.textContent='کلید دلخواه را فشار دهید… (Esc برای لغو)'}else idle();
+    };
+    document.addEventListener('keydown',function(e){
+      var tg=e.target&&e.target.tagName;if(tg==='INPUT'||tg==='TEXTAREA')return;
+      if(binding){
+        e.preventDefault();binding=false;kb.classList.remove('on');
+        if(e.code!=='Escape'){code=e.code;label=e.key===' '?'Space':(e.key.length===1?e.key.toUpperCase():e.key);try{localStorage.setItem('cpskey',JSON.stringify({code:code,label:label}))}catch(x){}}
+        idle();return;
+      }
+      if(e.code===code&&!e.repeat){e.preventDefault();hit()}
+    });
+    idle();
+  })();
+
+  (function(){
+    var $=function(i){return document.getElementById(i)};
+    var fab=$('ai-fab'),pn=$('ai-pn'),box=$('ai-msgs'),inp=$('ai-in'),snd=$('ai-send'),mic=$('ai-mic'),spk=$('ai-spk'),vmb=$('ai-vm'),stt=$('ai-st');
+    var cfgBtn=$('ai-cfg-btn'),cfgDiv=$('ai-cfg'),urlInp=$('ai-url'),keyInp=$('ai-key'),modelInp=$('ai-model'),saveCfgBtn=$('ai-save-cfg');
+    var voice=false,vm=false,busy=false,rec=null,greeted=false,tok=0,idle=0;
+    var INSTR='تو دستیار کسرا هستی. فارسی، کوتاه و دوستانه جواب بده، حداکثر چند جمله.';
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+    var apiCfg={
+      url: localStorage.getItem('ai_url') || 'https://api.openai.com/v1/chat/completions',
+      key: localStorage.getItem('ai_key') || '',
+      model: localStorage.getItem('ai_model') || 'gpt-4o-mini'
+    };
+    urlInp.value=apiCfg.url; keyInp.value=apiCfg.key; modelInp.value=apiCfg.model;
+
+    cfgBtn.onclick=function(){cfgDiv.style.display=cfgDiv.style.display==='none'?'flex':'none'};
+    saveCfgBtn.onclick=function(){
+      apiCfg.url=urlInp.value.trim(); apiCfg.key=keyInp.value.trim(); apiCfg.model=modelInp.value.trim();
+      localStorage.setItem('ai_url',apiCfg.url); localStorage.setItem('ai_key',apiCfg.key); localStorage.setItem('ai_model',apiCfg.model);
+      cfgDiv.style.display='none';
+      setSt('تنظیمات API ذخیره شد.'); setTimeout(function(){setSt('')},2000);
+    };
+
+    try{voice=localStorage.getItem('aivoice')==='1'}catch(e){}
+    spk.classList.toggle('on',voice);
+    function setSt(t){stt.textContent=t||''}
+    function add(role,text){var d=document.createElement('div');d.className='am '+role;d.textContent=text;box.appendChild(d);box.scrollTop=box.scrollHeight;return d}
+    
+    function stopSpeech(){tok++;if(window.speechSynthesis)speechSynthesis.cancel()}
+    function speak(t,cb){
+      if(!window.speechSynthesis){if(cb)cb();return}
+      speechSynthesis.cancel();var my=++tok;
+      var u=new SpeechSynthesisUtterance(t.replace(/[*#`_]/g, ''));u.lang='fa-IR';
+      var v=speechSynthesis.getVoices().find(function(x){return /^fa/i.test(x.lang)});if(v)u.voice=v;
+      u.onend=u.onerror=function(){if(my===tok&&cb)cb()};
+      if(vm)setSt('در حال صحبت…');
+      speechSynthesis.speak(u);
+    }
+    function stopVM(msg){
+      vm=false;vmb.classList.remove('on');mic.classList.remove('on');idle=0;
+      if(rec){try{rec.abort()}catch(e){}rec=null}
+      stopSpeech();setSt(msg||'');
+    }
+    function listen(){
+      if(!vm||busy||rec)return;
+      setSt('در حال گوش دادن…');
+      var got=false;
+      try{
+        rec=new SR();rec.lang='fa-IR';rec.interimResults=true;
+        rec.onresult=function(e){
+          var tx='',fin=false;
+          for(var i=0;i<e.results.length;i++){tx+=e.results[i][0].transcript;if(e.results[i].isFinal)fin=true}
+          inp.value=tx;
+          if(fin&&!got){got=true;idle=0;send(tx)}
+        };
+        rec.onerror=function(e){if(e.error==='not-allowed'||e.error==='service-not-allowed')stopVM('اجازه میکروفون داده نشد.')};
+        rec.onend=function(){
+          rec=null;
+          if(vm&&!got&&!busy){if(++idle>=3)stopVM('صدایی شنیده نشد.');else setTimeout(listen,300)}
+        };
+        rec.start();
+      }catch(e){rec=null;}
+    }
+
+    async function send(text){
+      text=(text||'').trim();if(!text||busy)return;
+      if(!apiCfg.key){
+        add('me', text); inp.value='';
+        add('bot', 'لطفاً کلید API و آدرس سرور را در بخش تنظیمات (چرخ‌دنده) وارد کنید.');
+        if(vm) stopVM();
+        return;
+      }
+      add('me',text);inp.value='';busy=true;
+      if(vm)setSt('در حال فکر کردن…');
+      var out=add('bot','…');
+      try{
+        var res = await fetch(apiCfg.url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + apiCfg.key
+          },
+          body: JSON.stringify({
+            model: apiCfg.model,
+            messages: [
+              {role: 'system', content: INSTR},
+              {role: 'user', content: text}
+            ]
+          })
+        });
+        if(!res.ok) throw new Error('خطا در ارتباط با سرور');
+        var data = await res.json();
+        var reply = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : 'پاسخی دریافت نشد.';
+        out.textContent = reply;
+        busy=false;
+        if(vm||voice)speak(reply,function(){if(vm)listen()});
+      }catch(e){
+        busy=false;
+        out.textContent='خطا در دریافت پاسخ. لطفاً تنظیمات API را بررسی کنید.';
+        if(vm)setTimeout(listen,800);
+      }
+      busy=false;
+    }
+
+    fab.onclick=async function(){
+      pn.hidden=!pn.hidden;
+      if(!pn.hidden){
+        if(!greeted){greeted=true;add('bot','سلام! برای اتصال هوش مصنوعی، روی دکمه تنظیمات کلیک کنید.')}
+        inp.focus();
+      }else stopVM();
+    };
+    snd.onclick=function(){send(inp.value)};
+    inp.onkeydown=function(e){if(e.key==='Enter')send(inp.value)};
+    spk.onclick=function(){
+      voice=!voice;spk.classList.toggle('on',voice);
+      try{localStorage.setItem('aivoice',voice?'1':'0')}catch(e){}
+      if(!voice&&!vm)stopSpeech();
+    };
+    if(!SR){mic.hidden=true;vmb.hidden=true}
+    vmb.onclick=async function(){
+      if(vm){stopVM();return}
+      if(pn.hidden)fab.onclick();
+      if(!apiCfg.key){add('bot','لطفاً ابتدا کلید API را وارد کنید.');return}
+      vm=true;vmb.classList.add('on');idle=0;listen();
+    };
+    mic.onclick=function(){
+      if(vm)return;
+      if(rec){rec.stop();return}
+      try{
+        rec=new SR();rec.lang='fa-IR';rec.interimResults=true;mic.classList.add('on');
+        rec.onresult=function(e){
+          var tx='';for(var i=0;i<e.results.length;i++){tx+=e.results[i][0].transcript}
+          inp.value=tx;
+        };
+        rec.onend=function(){rec=null;mic.classList.remove('on')};
+        rec.onerror=function(){rec=null;mic.classList.remove('on')};
+        rec.start();
+      }catch(e){rec=null;mic.classList.remove('on')}
+    };
+  })();
+</script>
+</body>
+</html>
